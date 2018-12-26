@@ -1,6 +1,6 @@
 package comun;
 
 public enum EstadoArchivo {
-	borrado,modificado,sinCambios;
+	nuevo, borrado, modificado, sinCambios;
 
 }
