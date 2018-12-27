@@ -4,11 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ServidorCloud {
-    public final static String CMD_SEPARATOR = "#";
-    public final static String CMD_LOGIN = "LOGIN";
-    public final static String CMD_UPLOAD = "UPLOAD";
-    public final static String CMD_DOWNLOAD = "DOWNLOAD";
-
 
     private int serverPort;
     private HashMap<String, String> usuarios;
@@ -25,7 +20,8 @@ public class ServidorCloud {
      */
     public void leerConfiguracion() {
         pathArchivos = "D:/srv/";
-        serverPort = 8080;
+//        pathArchivos = "/home/alejandro/srv/";
+        serverPort = 7070;
     }
 
     public int getServerPort() {

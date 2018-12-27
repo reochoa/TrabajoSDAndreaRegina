@@ -1,6 +1,11 @@
 package comun;
 
-import java.util.Date;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 public class Archivo {
 	private String fileName;
@@ -63,6 +68,43 @@ public class Archivo {
 
 	public void setEstado(EstadoArchivo estado) {
 		this.estado = estado;
+	}
+
+	public static Map<String, Archivo> leerArchivos(String path) {
+		Map<String, Archivo> archivos = new HashMap<>();
+		try {
+			File carpetaPersonal = new File(path);
+			if (carpetaPersonal.isDirectory() && carpetaPersonal.canRead()) {
+				List<File> files = Arrays.asList(carpetaPersonal.listFiles());
+				// Hash, algoritmo SHA-1 (identificador unico del archivo)
+				MessageDigest messageDigestSha = MessageDigest.getInstance("SHA-1");
+
+				byte[] buffer = new byte[1024];
+				for (File file : files) {
+					FileInputStream fis = new FileInputStream(file);
+					int nread = 0;
+					while ((nread = fis.read(buffer)) != -1) {
+						messageDigestSha.update(buffer, 0, nread);
+					}
+
+					byte[] result = messageDigestSha.digest();
+					StringBuffer sb = new StringBuffer();
+					// Pasar HASH a base 64 (como se suele representar)
+					for (int i = 0; i < result.length; i++) {
+						sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
+					}
+
+					Archivo archivo = new Archivo(file.getName(), new Date(file.lastModified()), EstadoArchivo.nuevo,
+							sb.toString());
+					archivos.put(file.getName(), archivo);
+				}
+			}
+		} catch (NoSuchAlgorithmException | IOException ex) {
+			ex.printStackTrace();
+		}
+		finally {
+			return archivos;
+		}
 	}
 
 }

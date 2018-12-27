@@ -12,15 +12,13 @@ public class ServidorCloudListener {
         try {
             ServerSocket serverSocket = new ServerSocket(servidorCloud.getServerPort());
             while (true) {
-      
-            	System.out.println("Esperando conexiones.....");
+                System.out.println("[LISTENER] Esperando conexiones.....");
                 Socket socket = serverSocket.accept();
-                System.out.println("Conexion aceptada.....");
-                
-                ConexionClienteThread conexionClienteThread = new ConexionClienteThread(servidorCloud, socket);
-                conexionClienteThread.run();
-            }
+                System.out.println("[LISTENER] Conexion aceptada.....");
 
+                ServidorCloudThread servidorCloudThread = new ServidorCloudThread(servidorCloud, socket);
+                servidorCloudThread.run();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
