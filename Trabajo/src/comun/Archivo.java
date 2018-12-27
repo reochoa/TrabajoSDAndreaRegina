@@ -10,23 +10,22 @@ import java.util.*;
 public class Archivo {
 	private String fileName;
 	private Date fechaModificacion;
-	private Date fechaCreacion;
 	private EstadoArchivo estado;
 	private String hash;
-
-	public Archivo(String fileName, Date fechaModificacion, Date fechaCreacion, EstadoArchivo estado, String hash) {
-		this.fileName = fileName;
-		this.fechaModificacion = fechaModificacion;
-		this.fechaCreacion = fechaCreacion;
-		this.estado = estado;
-		this.hash = hash;
-	}
 
 	public Archivo(String fileName, Date fechaModificacion, EstadoArchivo estado, String hash) {
 		super();
 		this.fileName = fileName;
 		this.fechaModificacion = fechaModificacion;
 		this.estado = estado;
+		this.hash = hash;
+	}
+	
+	public Archivo(String fileName, Date fechaModificacion, String hash) {
+		super();
+		this.fileName = fileName;
+		this.fechaModificacion = fechaModificacion;
+		this.estado = EstadoArchivo.nuevo;
 		this.hash = hash;
 	}
 
@@ -52,14 +51,6 @@ public class Archivo {
 
 	public void setFechaModificacion(Date fechaModificacion) {
 		this.fechaModificacion = fechaModificacion;
-	}
-
-	public Date getFechaCreacion() {
-		return fechaCreacion;
-	}
-
-	public void setFechaCreacion(Date fechaCreacion) {
-		this.fechaCreacion = fechaCreacion;
 	}
 
 	public EstadoArchivo getEstado() {
@@ -106,5 +97,17 @@ public class Archivo {
 			return archivos;
 		}
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder stb = new StringBuilder();
+		stb.append("fileName: ").append(fileName);
+		stb.append(", hash: ").append(hash);
+		stb.append(", fecha: ").append(fechaModificacion);
+		stb.append(", estado: ").append(estado);
+		return stb.toString();
+	}
+	
+	
 
 }

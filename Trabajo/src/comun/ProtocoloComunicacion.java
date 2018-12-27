@@ -24,4 +24,21 @@ public class ProtocoloComunicacion {
         stb.append(username).append(SEPARATOR).append(password);
         return stb.toString();
     }
+    
+    
+    public static String getComandoDownload(String username, String password, String fileName) {
+        StringBuilder stb = new StringBuilder();
+        stb.append(DOWNLOAD).append(SEPARATOR);
+        stb.append(username).append(SEPARATOR).append(password);
+        stb.append(SEPARATOR).append(fileName);
+        return stb.toString();
+    }
+    
+    public static String getComandoUpload(String username, String password, String fileName) {
+        StringBuilder stb = new StringBuilder();
+        stb.append(UPLOAD).append(SEPARATOR);
+        stb.append(username).append(SEPARATOR).append(password);
+        stb.append(SEPARATOR).append(fileName);
+        return stb.toString();
+    }
 }
