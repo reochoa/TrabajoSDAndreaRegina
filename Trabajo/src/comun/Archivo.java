@@ -8,25 +8,40 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class Archivo {
+	private Integer id;
 	private String fileName;
 	private Date fechaModificacion;
 	private EstadoArchivo estado;
 	private String hash;
 
 	public Archivo(String fileName, Date fechaModificacion, EstadoArchivo estado, String hash) {
-		super();
 		this.fileName = fileName;
 		this.fechaModificacion = fechaModificacion;
 		this.estado = estado;
 		this.hash = hash;
 	}
-	
+
 	public Archivo(String fileName, Date fechaModificacion, String hash) {
-		super();
 		this.fileName = fileName;
 		this.fechaModificacion = fechaModificacion;
 		this.estado = EstadoArchivo.nuevo;
 		this.hash = hash;
+	}
+
+	public Archivo(int id, String fileName, Date fechaModificacion, String hash) {
+		this.id = id;
+		this.fileName = fileName;
+		this.fechaModificacion = fechaModificacion;
+		this.estado = EstadoArchivo.nuevo;
+		this.hash = hash;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public String getHash() {
@@ -62,6 +77,10 @@ public class Archivo {
 	}
 
 	public static Map<String, Archivo> leerArchivos(String path) {
+		return leerArchivos(path, false);
+	}
+
+	public static Map<String, Archivo> leerArchivos(String path, boolean asignarId) {
 		Map<String, Archivo> archivos = new HashMap<>();
 		try {
 			File carpetaPersonal = new File(path);
@@ -70,6 +89,8 @@ public class Archivo {
 				// Hash, algoritmo SHA-1 (identificador unico del archivo)
 				MessageDigest messageDigestSha = MessageDigest.getInstance("SHA-1");
 
+				int id = 1;
+
 				byte[] buffer = new byte[1024];
 				for (File file : files) {
 					FileInputStream fis = new FileInputStream(file);
@@ -77,6 +98,7 @@ public class Archivo {
 					while ((nread = fis.read(buffer)) != -1) {
 						messageDigestSha.update(buffer, 0, nread);
 					}
+					fis.close();
 
 					byte[] result = messageDigestSha.digest();
 					StringBuffer sb = new StringBuffer();
@@ -87,27 +109,28 @@ public class Archivo {
 
 					Archivo archivo = new Archivo(file.getName(), new Date(file.lastModified()), EstadoArchivo.nuevo,
 							sb.toString());
+					if (asignarId) { // solo lo hara el servidor, en el cliente no nos interesa
+						archivo.setId(id);
+					}
 					archivos.put(file.getName(), archivo);
+					id++;
 				}
 			}
 		} catch (NoSuchAlgorithmException | IOException ex) {
 			ex.printStackTrace();
 		}
-		finally {
-			return archivos;
-		}
+		return archivos;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder stb = new StringBuilder();
-		stb.append("fileName: ").append(fileName);
+		stb.append("id: ").append(id);
+		stb.append(", fileName: ").append(fileName);
 		stb.append(", hash: ").append(hash);
 		stb.append(", fecha: ").append(fechaModificacion);
 		stb.append(", estado: ").append(estado);
 		return stb.toString();
 	}
-	
-	
 
 }

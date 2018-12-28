@@ -69,8 +69,7 @@ public class ClienteCloud {
 		String respuesta = reader.readLine();
 
 		while (!ProtocoloComunicacion.END.equals(respuesta)) {
-			System.out.println(respuesta);
-			String[] cadenas = respuesta.split("#");
+			String[] cadenas = respuesta.split(ProtocoloComunicacion.SEPARATOR);
 			SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm");
 			Date fechaModificacion = new Date();
 			try {
@@ -78,7 +77,8 @@ public class ClienteCloud {
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
-			Archivo aux = new Archivo(cadenas[0], fechaModificacion, cadenas[1]);
+			int id = Integer.parseInt(cadenas[3]);			
+			Archivo aux = new Archivo(id, cadenas[0], fechaModificacion, cadenas[1]);
 			archivosServidor.put(cadenas[0], aux);
 			respuesta = reader.readLine();
 		}
@@ -98,6 +98,7 @@ public class ClienteCloud {
 					}
 				} else {
 					local.setEstado(EstadoArchivo.sinCambios);
+					local.setId(servidor.getId());
 					servidor.setEstado(EstadoArchivo.sinCambios);
 				}
 
@@ -106,46 +107,59 @@ public class ClienteCloud {
 		}
 	}
 
-	public void subirArchivo(Archivo archivo) {
+	public void subirArchivo(Archivo archivo)  throws IOException {
+		Socket socket = new Socket(serverHost, serverPort);
+		File file = new File(pathCarpetaPersonal + archivo.getFileName());
 
+		byte[] bytes = new byte[1024];
+		BufferedInputStream fileIn = new BufferedInputStream(new FileInputStream(file));
+		DataOutputStream socketOut = new DataOutputStream(socket.getOutputStream());
+		
+		PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+		writer.println(ProtocoloComunicacion.getComandoUpload(username, password, archivo.getFileName()));
+		
+		int leidos = fileIn.read(bytes);
+		while (leidos != -1) {
+			socketOut.write(bytes, 0, leidos);
+			socketOut.flush();
+			leidos = fileIn.read(bytes);
+		}
+		fileIn.close();	
+		
+		socket.close();
 	}
 
+	/**
+	 * 
+	 * @param archivo
+	 * @throws IOException
+	 */
 	public void descargarArchivo(Archivo archivo) throws IOException {
-		// archicos servidor
-		System.out.println("------------------------>" + archivo);
 		Socket socket = new Socket(serverHost, serverPort);
-		InputStream input = socket.getInputStream();
+		DataInputStream input = new DataInputStream(socket.getInputStream());
 		OutputStream ouput = socket.getOutputStream();
 
 		PrintWriter writer = new PrintWriter(ouput, true);
 		writer.println(ProtocoloComunicacion.getComandoDownload(username, password, archivo.getFileName()));
 		
-		System.out.println("------------------------>" + archivo);
+		String linea = input.readLine();
+		String[] cadenas = linea.split(ProtocoloComunicacion.SEPARATOR);
+		int id = Integer.parseInt(cadenas[1]); 
+		
+		linea = input.readLine(); //descartamos linea en blanco
 		
 		byte[] bytes = new byte[1024];
 		BufferedOutputStream fileOutput = new BufferedOutputStream(new FileOutputStream(pathCarpetaPersonal + archivo.getFileName()));
 		int leidos = input.read(bytes);
 		while (leidos != -1) {
-			System.out.println(leidos);
 			fileOutput.write(bytes, 0, leidos);
 			fileOutput.flush();
 			leidos = input.read(bytes);
 		}
+		//Mandar linea en blanco y a partir de esta convetir en string
 		fileOutput.close();
 		
-//		BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-//		String respuesta = reader.readLine();
-//		 respuesta = reader.readLine();
-//		 
-//		 while(respuesta == null) {
-//			 respuesta = reader.readLine();
-//			 System.out.println(respuesta);
-//		 }
-//		
-//		if(ProtocoloComunicacion.END.equals(respuesta)) {
-//			
-//		}
-		
+		socket.close();
 	}
 
 	public Map<String, Archivo> getArchivosLocales() {
@@ -170,7 +184,7 @@ public class ClienteCloud {
 
 			for (String filename : clienteCloud.archivosLocales.keySet()) {
 				Archivo local = clienteCloud.archivosLocales.get(filename);
-				System.out.println(local.toString());
+				System.out.println("local" + local.toString());
 
 				if (local.getEstado().equals(EstadoArchivo.modificado)
 						|| local.getEstado().equals(EstadoArchivo.nuevo)) {
@@ -179,7 +193,7 @@ public class ClienteCloud {
 			}
 			for (String filename : clienteCloud.archivosServidor.keySet()) {
 				Archivo servidor = clienteCloud.archivosServidor.get(filename);
-				System.out.println(servidor.toString());
+				System.out.println("serv" + servidor.toString());
 
 				if (servidor.getEstado().equals(EstadoArchivo.modificado)
 						|| servidor.getEstado().equals(EstadoArchivo.nuevo)) {
