@@ -19,12 +19,20 @@ public class ServidorCloud {
      * Lee la configuración desde un archivo properties
      */
     public void leerConfiguracion() {
+
         pathArchivos = "D:/srv/";
-//        pathArchivos = "/home/reochoa/srv/";
         serverPort = 7070;
     }
 
-    public int getServerPort() {
+    public void setServerPort(int serverPort) {
+		this.serverPort = serverPort;
+	}
+
+	public void setPathArchivos(String pathArchivos) {
+		this.pathArchivos = pathArchivos;
+	}
+
+	public int getServerPort() {
         return serverPort;
     }
 

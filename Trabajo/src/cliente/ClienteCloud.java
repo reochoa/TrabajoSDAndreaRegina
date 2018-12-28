@@ -62,9 +62,12 @@ public class ClienteCloud {
 	// ----------------------------------------------------
 	public static void main(String[] args) {
 		ClienteCloud cliente = new ClienteCloud();
-		if (args.length == 5) {
-
-		}
+		if (args.length > -1) {
+//			cliente.serverHost = args[0];
+//			cliente.serverPort = Integer.parseInt(args[1]);
+//			cliente.username = args[2];
+//			cliente.password = args[3];
+//			cliente.pathCarpetaPersonal = args[4];
 
 		cliente.serverHost = "localhost";
 		cliente.serverPort = 7070;
@@ -72,45 +75,46 @@ public class ClienteCloud {
 		cliente.password = "password";
 		cliente.pathCarpetaPersonal = "D:/temp/";
 
-		try {
-			while (true) {
+			try {
+				while (true) {
 
-				ClienteSyncThread syncThread = new ClienteSyncThread(cliente);
+					ClienteSyncThread syncThread = new ClienteSyncThread(cliente);
 
-				Map<String, Archivo> aux = Archivo.leerArchivos(cliente.getPathCarpetaPersonal());
-				cliente.getArchivosLocales().putAll(aux);
-				syncThread.run();
+					Map<String, Archivo> aux = Archivo.leerArchivos(cliente.getPathCarpetaPersonal());
+					cliente.getArchivosLocales().putAll(aux);
+					syncThread.run();
 
-				// Comparar archivosLocales con archivosServidor
-				// segun diferencias, habra que descargar archivos o subir archivos
+					// Comparar archivosLocales con archivosServidor
+					// segun diferencias, habra que descargar archivos o subir archivos
 
-				for (String filename : cliente.getArchivosLocales().keySet()) {
-					Archivo local = cliente.archivosLocales.get(filename);
+					for (String filename : cliente.getArchivosLocales().keySet()) {
+						Archivo local = cliente.archivosLocales.get(filename);
 
-					if (local.getEstado().equals(EstadoArchivo.modificado)
-							|| local.getEstado().equals(EstadoArchivo.nuevo)) {
+						if (local.getEstado().equals(EstadoArchivo.modificado)
+								|| local.getEstado().equals(EstadoArchivo.nuevo)) {
 
-						ClienteUploadThread uploadThread = new ClienteUploadThread(cliente, local);
-						uploadThread.run();
+							ClienteUploadThread uploadThread = new ClienteUploadThread(cliente, local);
+							uploadThread.run();
+						}
 					}
-				}
-				for (String filename : cliente.archivosServidor.keySet()) {
-					Archivo servidor = cliente.archivosServidor.get(filename);
+					for (String filename : cliente.archivosServidor.keySet()) {
+						Archivo servidor = cliente.archivosServidor.get(filename);
 
-					if (servidor.getEstado().equals(EstadoArchivo.modificado)
-							|| servidor.getEstado().equals(EstadoArchivo.nuevo)) {
+						if (servidor.getEstado().equals(EstadoArchivo.modificado)
+								|| servidor.getEstado().equals(EstadoArchivo.nuevo)) {
 
-						ClienteDownloadThread downloadThread = new ClienteDownloadThread(cliente, servidor);
-						downloadThread.run();
+							ClienteDownloadThread downloadThread = new ClienteDownloadThread(cliente, servidor);
+							downloadThread.run();
 
+						}
 					}
+					Thread.currentThread().sleep(20000);
 				}
-				Thread.currentThread().sleep(20000);
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
+		}
 	}
 
 }
