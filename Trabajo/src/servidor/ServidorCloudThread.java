@@ -22,17 +22,21 @@ public class ServidorCloudThread implements Runnable {
 	}
 
 	private void subirArchivo() throws IOException {
+		System.out.println("Empiezo " + filename);
 		DataInputStream socketIn = new DataInputStream(socket.getInputStream());
 		byte[] bytes = new byte[512];
 		BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(servidorCloud.getPathArchivos() + username + "/" + filename));
 		int leidos = socketIn.read(bytes);
+		System.out.println(filename + " " + leidos);
 		while (leidos != -1) {
+			System.out.println(filename + " " + leidos);
 			fileOut.write(bytes, 0, leidos);
-			fileOut.flush();
 			leidos = socketIn.read(bytes);
 		}
+		fileOut.flush();
 		fileOut.close();
 		socket.close();
+		System.out.println("Fin " + filename);
 	}
 
 	public void descargarArchivo() throws IOException {
@@ -48,9 +52,9 @@ public class ServidorCloudThread implements Runnable {
 		int leidos = input.read(bytes);
 		while (leidos != -1) {
 			output.write(bytes, 0, leidos);
-			output.flush();
 			leidos = input.read(bytes);
 		}
+		output.flush();
 		input.close();	
 		socket.close();
 	}
@@ -103,10 +107,10 @@ public class ServidorCloudThread implements Runnable {
 				System.out.println("--------------------FIN DESCARGAR----------------------");
 				break;
 			case ProtocoloComunicacion.UPLOAD:
-				System.out.println("------------------------SUBIR----------------------");
+				System.out.println("------------------------SUBIR----------------------" + socket);
 				filename = cadenas[3];
 				subirArchivo();
-				System.out.println("-----------------FIN SUBIR-------------------------");
+				System.out.println("-----------------FIN SUBIR-------------------------" + socket);
 				break;
 			}
 
