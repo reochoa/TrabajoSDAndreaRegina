@@ -20,7 +20,7 @@ public class ServidorCloud {
      */
     public void leerConfiguracion() {
         pathArchivos = "D:/srv/";
-//        pathArchivos = "/home/alejandro/srv/";
+//        pathArchivos = "/home/reochoa/srv/";
         serverPort = 7070;
     }
 

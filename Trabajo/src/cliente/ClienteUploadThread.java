@@ -37,7 +37,6 @@ public class ClienteUploadThread implements Runnable {
 
 			int leidos = fileIn.read(bytes);
 			while (leidos != -1) {
-				System.out.println(leidos + " " + archivo.getFileName());
 				socketOut.write(bytes, 0, leidos);
 				leidos = fileIn.read(bytes);
 			}
@@ -45,6 +44,7 @@ public class ClienteUploadThread implements Runnable {
 			fileIn.close();
 			socket.close();
 		} catch (IOException ex) {
+			ex.printStackTrace();
 
 		}
 

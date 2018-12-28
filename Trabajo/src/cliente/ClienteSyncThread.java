@@ -74,7 +74,7 @@ public class ClienteSyncThread implements Runnable {
 
 			}
 		} catch (IOException e) {
-			// TODO: handle exception
+			e.printStackTrace();
 		}
 	}
 

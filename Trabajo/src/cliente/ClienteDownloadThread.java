@@ -50,7 +50,7 @@ public class ClienteDownloadThread implements Runnable {
 			fileOutput.close();
 			socket.close();
 		} catch (IOException e) {
-			
+			e.printStackTrace();
 		}
 
 	}
