@@ -1,120 +1,145 @@
 package cliente;
 
-import java.io.*;
-import java.net.Socket;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import comun.Archivo;
+import comun.EstadoArchivo;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import comun.Archivo;
-import comun.EstadoArchivo;
-import comun.ProtocoloComunicacion;
-
 public class ClienteCloud {
 
-	private String username;
-	private String password;
-	private String serverHost;
-	private int serverPort;
-	private String pathCarpetaPersonal;
-	// Map de nombreFichero y la representacion de archivo(por SO el nombre tiene
-	// que ser unico)
-	private Map<String, Archivo> archivosLocales;
-	private Map<String, Archivo> archivosServidor;
+    private String username;
+    private String password;
+    private String serverHost;
+    private int serverPort;
+    private String pathCarpetaPersonal;
+    // Map de nombreFichero y la representacion de archivo(por SO el nombre tiene
+    // que ser unico)
+    private Map<String, Archivo> archivosLocales;
+    private Map<String, Archivo> archivosLocalesAnterior;
+    private Map<String, Archivo> archivosServidor;
+    private Map<String, Archivo> archivosServidorAnterior;
 
-	public ClienteCloud() {
-		archivosLocales = new HashMap<>();
-		archivosServidor = new HashMap<>();
-	}
+    private Map<String, Archivo> archivosProcesar;
 
-	public Map<String, Archivo> getArchivosLocales() {
-		return archivosLocales;
-	}
 
-	public String getUsername() {
-		return username;
-	}
+    public ClienteCloud() {
+        archivosLocales = new HashMap<>();
+        archivosServidor = new HashMap<>();
+        archivosLocalesAnterior = new HashMap<>();
+        archivosServidorAnterior = new HashMap<>();
+        archivosProcesar = new HashMap<>();
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public Map<String, Archivo> getArchivosServidor() {
+        return archivosServidor;
+    }
 
-	public String getServerHost() {
-		return serverHost;
-	}
+    public Map<String, Archivo> getArchivosLocales() {
+        return archivosLocales;
+    }
 
-	public int getServerPort() {
-		return serverPort;
-	}
+    public Map<String, Archivo> getArchivosLocalesAnterior() {
+        return archivosLocalesAnterior;
+    }
 
-	public String getPathCarpetaPersonal() {
-		return pathCarpetaPersonal;
-	}
+    public Map<String, Archivo> getArchivosServidorAnterior() {
+        return archivosServidorAnterior;
+    }
 
-	public Map<String, Archivo> getArchivosServidor() {
-		return archivosServidor;
-	}
+    public Map<String, Archivo> getArchivosProcesar() {
+        return archivosProcesar;
+    }
 
-	// ----------------------------------------------------
-	// PRINCIPAL
-	// ----------------------------------------------------
-	public static void main(String[] args) {
-		ClienteCloud cliente = new ClienteCloud();
-		if (args.length > -1) {
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getServerHost() {
+        return serverHost;
+    }
+
+    public int getServerPort() {
+        return serverPort;
+    }
+
+    public String getPathCarpetaPersonal() {
+        return pathCarpetaPersonal;
+    }
+
+
+    // ----------------------------------------------------
+    // PRINCIPAL
+    // ----------------------------------------------------
+    public static void main(String[] args) {
+        ClienteCloud cliente = new ClienteCloud();
+        if (args.length > -1) {
 //			cliente.serverHost = args[0];
 //			cliente.serverPort = Integer.parseInt(args[1]);
 //			cliente.username = args[2];
 //			cliente.password = args[3];
 //			cliente.pathCarpetaPersonal = args[4];
 
-		cliente.serverHost = "localhost";
-		cliente.serverPort = 7070;
-		cliente.username = "reochoa";
-		cliente.password = "password";
-		cliente.pathCarpetaPersonal = "D:/temp/";
+            cliente.serverHost = "localhost";
+            cliente.serverPort = 6060;
+            cliente.username = "reochoa";
+            cliente.password = "password";
+            cliente.pathCarpetaPersonal = "/home/alejandro/cloudclient/";
 
-			try {
-				while (true) {
+            try {
+                while (true) {
+                    Map<String, Archivo> aux = Archivo.leerArchivos(cliente.getPathCarpetaPersonal());
 
-					ClienteSyncThread syncThread = new ClienteSyncThread(cliente);
+                    cliente.archivosLocalesAnterior.clear();
+                    cliente.archivosLocalesAnterior.putAll(cliente.getArchivosLocales());
 
-					Map<String, Archivo> aux = Archivo.leerArchivos(cliente.getPathCarpetaPersonal());
-					cliente.getArchivosLocales().putAll(aux);
-					syncThread.run();
+                    cliente.getArchivosLocales().clear();
+                    cliente.getArchivosLocales().putAll(aux);
 
-					// Comparar archivosLocales con archivosServidor
-					// segun diferencias, habra que descargar archivos o subir archivos
+                    ClienteSyncThread syncThread = new ClienteSyncThread(cliente);
+                    syncThread.run();
 
-					for (String filename : cliente.getArchivosLocales().keySet()) {
-						Archivo local = cliente.archivosLocales.get(filename);
 
-						if (local.getEstado().equals(EstadoArchivo.modificado)
-								|| local.getEstado().equals(EstadoArchivo.nuevo)) {
+                    for (String filename : cliente.getArchivosProcesar().keySet()) {
 
-							ClienteUploadThread uploadThread = new ClienteUploadThread(cliente, local);
-							uploadThread.run();
-						}
-					}
-					for (String filename : cliente.archivosServidor.keySet()) {
-						Archivo servidor = cliente.archivosServidor.get(filename);
+                        Archivo archivoProcesar = cliente.getArchivosProcesar().get(filename);
+                        System.out.println(archivoProcesar);
 
-						if (servidor.getEstado().equals(EstadoArchivo.modificado)
-								|| servidor.getEstado().equals(EstadoArchivo.nuevo)) {
 
-							ClienteDownloadThread downloadThread = new ClienteDownloadThread(cliente, servidor);
-							downloadThread.run();
+                        //Archivos modificados o nuevos en cliente
+                        if (archivoProcesar.getEstado().equals(EstadoArchivo.CLIENT_MODIFIED)
+                                || archivoProcesar.getEstado().equals(EstadoArchivo.CLIENT_NEW)) {
 
-						}
-					}
-					Thread.currentThread().sleep(20000);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+                            ClienteUploadThread uploadThread = new ClienteUploadThread(cliente, archivoProcesar);
+                            uploadThread.run();
+                        }
 
-		}
-	}
+                        //Archivos modificados o nuevos en servidor
+                        if (archivoProcesar.getEstado().equals(EstadoArchivo.SERVER_MODIFIED)
+                                || archivoProcesar.getEstado().equals(EstadoArchivo.SERVER_NEW)) {
+
+                            ClienteDownloadThread downloadThread = new ClienteDownloadThread(cliente, archivoProcesar);
+                            downloadThread.run();
+                        }
+
+                        if(archivoProcesar.getEstado().equals(EstadoArchivo.CLIENT_DELETED)) {
+                            ClienteDeleteThread deleteThread = new ClienteDeleteThread(cliente, archivoProcesar);
+                            deleteThread.run();
+                        }
+
+                    }
+
+                    Thread.currentThread().sleep(20000);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
 
 }

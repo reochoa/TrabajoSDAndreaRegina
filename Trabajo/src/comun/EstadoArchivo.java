@@ -1,6 +1,5 @@
 package comun;
 
 public enum EstadoArchivo {
-	nuevo, borrado, modificado, sinCambios, desactualizado;
-
+	SERVER_NEW, CLIENT_NEW, CLIENT_DELETED, SERVER_DELETED, SYNCHRONIZED, SERVER_MODIFIED, CLIENT_MODIFIED;
 }

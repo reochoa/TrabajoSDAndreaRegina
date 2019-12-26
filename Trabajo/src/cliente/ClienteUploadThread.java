@@ -1,11 +1,6 @@
 package cliente;
 
-import java.io.BufferedInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 import comun.Archivo;
@@ -25,23 +20,28 @@ public class ClienteUploadThread implements Runnable {
 	public void run() {
 
 		try {
+			System.out.println("[CLIENT] Upload file " + cliente.getUsername() + "@" + archivo.getFileName());
+
 			Socket socket = new Socket(cliente.getServerHost(), cliente.getServerPort());
 			File file = new File(cliente.getPathCarpetaPersonal() + archivo.getFileName());
 
 			byte[] bytes = new byte[512];
 			BufferedInputStream fileIn = new BufferedInputStream(new FileInputStream(file));
-			DataOutputStream socketOut = new DataOutputStream(socket.getOutputStream());
+			DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
-			PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-			writer.println(ProtocoloComunicacion.getComandoUpload(cliente.getUsername(), cliente.getPassword(), archivo.getFileName()));
+			outputStream.writeUTF(ProtocoloComunicacion.getComandoUpload(cliente.getUsername(), cliente.getPassword(), archivo.getFileName()));
+			outputStream.writeUTF(ProtocoloComunicacion.BR);
 
 			int leidos = fileIn.read(bytes);
 			while (leidos != -1) {
-				socketOut.write(bytes, 0, leidos);
+				outputStream.write(bytes, 0, leidos);
 				leidos = fileIn.read(bytes);
 			}
-			socketOut.flush();
+			outputStream.flush();
 			fileIn.close();
+
+			socket.shutdownInput();
+			socket.shutdownOutput();
 			socket.close();
 		} catch (IOException ex) {
 			ex.printStackTrace();

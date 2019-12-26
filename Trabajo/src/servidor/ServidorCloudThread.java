@@ -25,6 +25,8 @@ public class ServidorCloudThread implements Runnable {
 		try {
 			DataInputStream socketIn = new DataInputStream(socket.getInputStream());
 			byte[] bytes = new byte[512];
+			String linea = socketIn.readUTF(); // descartamos linea en blanco
+
 			BufferedOutputStream fileOut = new BufferedOutputStream(
 					new FileOutputStream(servidorCloud.getPathArchivos() + username + "/" + filename));
 			int leidos = socketIn.read(bytes);
@@ -45,21 +47,23 @@ public class ServidorCloudThread implements Runnable {
 		try {
 			File file = new File(servidorCloud.getPathArchivos() + username + "/" + filename);
 			byte[] bytes = new byte[512];
-			BufferedInputStream input = new BufferedInputStream(new FileInputStream(file));
-			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+			BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(file));
+			DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
-			output.writeUTF(
-					ProtocoloComunicacion.END + ProtocoloComunicacion.SEPARATOR + "55" + ProtocoloComunicacion.BR);
-			output.writeUTF(ProtocoloComunicacion.BR);
-			output.flush();
+			outputStream.writeUTF(ProtocoloComunicacion.END + ProtocoloComunicacion.SEPARATOR + "55");
+			outputStream.writeUTF(ProtocoloComunicacion.BR);
 
-			int leidos = input.read(bytes);
+			int leidos = fileInput.read(bytes);
 			while (leidos != -1) {
-				output.write(bytes, 0, leidos);
-				leidos = input.read(bytes);
+				outputStream.write(bytes, 0, leidos);
+				leidos = fileInput.read(bytes);
 			}
-			output.flush();
-			input.close();
+			outputStream.flush();
+
+			fileInput.close();
+
+			socket.shutdownOutput();
+			socket.shutdownInput();
 			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -72,26 +76,26 @@ public class ServidorCloudThread implements Runnable {
 	 */
 	private void leerArchivosUsuario() throws IOException {
 		try {
-			InputStream input = socket.getInputStream();
-			OutputStream ouput = socket.getOutputStream();
+			DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+			DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
 			File file = new File(servidorCloud.getPathArchivos() + username);
 			if (!file.exists()) {
 				file.mkdirs();
 			}
 
-			PrintWriter writer = new PrintWriter(ouput, true);
+
 			Map<String, Archivo> archivos = Archivo.leerArchivos(servidorCloud.getPathArchivos() + username, true);
 
 			for (String filename : archivos.keySet()) {
 				Archivo aux = archivos.get(filename);
 				SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm");
-				writer.println(filename + ProtocoloComunicacion.SEPARATOR + aux.getHash() + ProtocoloComunicacion.SEPARATOR
+				outputStream.writeUTF(filename + ProtocoloComunicacion.SEPARATOR + aux.getHash() + ProtocoloComunicacion.SEPARATOR
 						+ dateFormat.format(aux.getFechaModificacion()) + ProtocoloComunicacion.SEPARATOR + aux.getId());
 			}
 
 			// Fin de la comunicacion, se cierran socket
-			writer.println(ProtocoloComunicacion.END);
+			outputStream.writeUTF(ProtocoloComunicacion.END);
 			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -102,8 +106,8 @@ public class ServidorCloudThread implements Runnable {
 	@Override
 	public void run() {
 		try {
-			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-			String cadena = bufferedReader.readLine();
+			DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+			String cadena = dataInputStream.readUTF();
 			String[] cadenas = cadena.split(ProtocoloComunicacion.SEPARATOR);
 			username = cadenas[1];
 			password = cadenas[2];

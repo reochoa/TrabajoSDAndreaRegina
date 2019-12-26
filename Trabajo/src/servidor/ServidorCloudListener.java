@@ -16,9 +16,8 @@ public class ServidorCloudListener {
 				ServerSocket serverSocket = new ServerSocket(servidorCloud.getServerPort());
 				while (true) {
 					try {
-						System.out.println("[LISTENER] Esperando conexiones.....");
 						Socket socket = serverSocket.accept();
-						System.out.println("[LISTENER] Conexion aceptada.....");
+						System.out.println("[SERVER] Conexion aceptada.....");
 
 						ServidorCloudThread servidorCloudThread = new ServidorCloudThread(servidorCloud, socket);
 						servidorCloudThread.run();

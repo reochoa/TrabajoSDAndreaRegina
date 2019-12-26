@@ -19,20 +19,19 @@ public class ServidorCloud {
      * Lee la configuración desde un archivo properties
      */
     public void leerConfiguracion() {
-
-        pathArchivos = "D:/srv/";
-        serverPort = 7070;
+        pathArchivos = "/home/alejandro/cloudsrv/";
+        serverPort = 6060;
     }
 
     public void setServerPort(int serverPort) {
-		this.serverPort = serverPort;
-	}
+        this.serverPort = serverPort;
+    }
 
-	public void setPathArchivos(String pathArchivos) {
-		this.pathArchivos = pathArchivos;
-	}
+    public void setPathArchivos(String pathArchivos) {
+        this.pathArchivos = pathArchivos;
+    }
 
-	public int getServerPort() {
+    public int getServerPort() {
         return serverPort;
     }
 

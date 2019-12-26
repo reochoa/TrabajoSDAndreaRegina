@@ -24,7 +24,7 @@ public class Archivo {
 	public Archivo(String fileName, Date fechaModificacion, String hash) {
 		this.fileName = fileName;
 		this.fechaModificacion = fechaModificacion;
-		this.estado = EstadoArchivo.nuevo;
+		this.estado = EstadoArchivo.SERVER_NEW;
 		this.hash = hash;
 	}
 
@@ -32,7 +32,7 @@ public class Archivo {
 		this.id = id;
 		this.fileName = fileName;
 		this.fechaModificacion = fechaModificacion;
-		this.estado = EstadoArchivo.nuevo;
+		this.estado = EstadoArchivo.SERVER_NEW;
 		this.hash = hash;
 	}
 
@@ -107,7 +107,7 @@ public class Archivo {
 						sb.append(Integer.toString((result[i] & 0xff) + 0x100, 16).substring(1));
 					}
 
-					Archivo archivo = new Archivo(file.getName(), new Date(file.lastModified()), EstadoArchivo.nuevo,
+					Archivo archivo = new Archivo(file.getName(), new Date(file.lastModified()), EstadoArchivo.SERVER_NEW,
 							sb.toString());
 					if (asignarId) { // solo lo hara el servidor, en el cliente no nos interesa
 						archivo.setId(id);
@@ -120,6 +120,19 @@ public class Archivo {
 			ex.printStackTrace();
 		}
 		return archivos;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Archivo archivo = (Archivo) o;
+		return Objects.equals(hash, archivo.hash);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(hash);
 	}
 
 	@Override
