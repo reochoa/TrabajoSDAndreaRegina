@@ -1,4 +1,4 @@
-package servidor;
+ package servidor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,11 +15,8 @@ public class ServidorCloud {
         leerConfiguracion();
     }
 
-    /**
-     * Lee la configuración desde un archivo properties
-     */
     public void leerConfiguracion() {
-        pathArchivos = "/home/alejandro/cloudsrv/";
+        pathArchivos = "C:/Users/Regina/Desktop/srv";
         serverPort = 6060;
     }
 

@@ -5,9 +5,7 @@ import comun.EstadoArchivo;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class ClienteCloud {
 
@@ -90,8 +88,8 @@ public class ClienteCloud {
             cliente.serverHost = "localhost";
             cliente.serverPort = 6060;
             cliente.username = "reochoa";
-            cliente.password = "password";
-            cliente.pathCarpetaPersonal = "/home/alejandro/cloudclient/";
+            cliente.password = "holaholita";
+            cliente.pathCarpetaPersonal = "C:/Users/Regina/Desktop/srv";
 
             try {
                 while (true) {

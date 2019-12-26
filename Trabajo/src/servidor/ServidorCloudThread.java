@@ -1,7 +1,9 @@
 package servidor;
 
 import comun.Archivo;
+import comun.LoginUsuario;
 import comun.ProtocoloComunicacion;
+import comun.User;
 
 import java.io.*;
 import java.net.Socket;
@@ -97,14 +99,14 @@ public class ServidorCloudThread implements Runnable {
 				file.mkdirs();
 			}
 
-
 			Map<String, Archivo> archivos = Archivo.leerArchivos(servidorCloud.getPathArchivos() + username, true);
 
 			for (String filename : archivos.keySet()) {
 				Archivo aux = archivos.get(filename);
 				SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm");
-				outputStream.writeUTF(filename + ProtocoloComunicacion.SEPARATOR + aux.getHash() + ProtocoloComunicacion.SEPARATOR
-						+ dateFormat.format(aux.getFechaModificacion()) + ProtocoloComunicacion.SEPARATOR + aux.getId());
+				outputStream.writeUTF(filename + ProtocoloComunicacion.SEPARATOR + aux.getHash()
+						+ ProtocoloComunicacion.SEPARATOR + dateFormat.format(aux.getFechaModificacion())
+						+ ProtocoloComunicacion.SEPARATOR + aux.getId());
 			}
 
 			// Fin de la comunicacion, se cierran socket
@@ -113,7 +115,7 @@ public class ServidorCloudThread implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	@Override
@@ -124,24 +126,27 @@ public class ServidorCloudThread implements Runnable {
 			String[] cadenas = cadena.split(ProtocoloComunicacion.SEPARATOR);
 			username = cadenas[1];
 			password = cadenas[2];
-
-			switch (cadenas[0]) {
-			case ProtocoloComunicacion.SYNC:
-				leerArchivosUsuario();
-				break;
-			case ProtocoloComunicacion.DOWNLOAD:
-				filename = cadenas[3];
-				descargarArchivo();
-				break;
-			case ProtocoloComunicacion.UPLOAD:
-				filename = cadenas[3];
-				subirArchivo();
-				break;
+			String hashedPassword="";
+			
+			//if (LoginUsuario.existUser(username) && User.encryptPassword(hashedPassword).equals(password)) {
+				switch (cadenas[0]) {
+				case ProtocoloComunicacion.SYNC:
+					leerArchivosUsuario();
+					break;
+				case ProtocoloComunicacion.DOWNLOAD:
+					filename = cadenas[3];
+					descargarArchivo();
+					break;
+				case ProtocoloComunicacion.UPLOAD:
+					filename = cadenas[3];
+					subirArchivo();
+					break;
 				case ProtocoloComunicacion.DELETE:
 					filename = cadenas[3];
 					eliminarArchivo();
 					break;
-			}
+				}
+			//}
 
 		} catch (IOException ex) {
 			ex.printStackTrace();
