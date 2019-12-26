@@ -27,13 +27,20 @@ public class ClienteSyncThread implements Runnable {
             DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
 
             outputStream.writeUTF(ProtocoloComunicacion.getComandoSync(cliente.getUsername(), cliente.getPassword()));
-            outputStream.writeUTF(ProtocoloComunicacion.BR); //lÃ­nea en blanco
+            outputStream.writeUTF(ProtocoloComunicacion.BR); //línea en blanco
 
             String response = inputStream.readUTF();
 
-            cliente.getArchivosServidorAnterior().clear();
-			cliente.getArchivosServidorAnterior().putAll(cliente.getArchivosServidorAnterior());
+            cliente.getArchivosLocalesAnterior().clear();
+            cliente.getArchivosLocalesAnterior().putAll(cliente.getArchivosLocales());
 
+            cliente.getArchivosLocales().clear();
+            cliente.getArchivosLocales().putAll(Archivo.leerArchivos(cliente.getPathCarpetaPersonal()));
+
+            cliente.getArchivosServidorAnterior().clear();
+            cliente.getArchivosServidorAnterior().putAll(cliente.getArchivosServidor());
+
+            cliente.getArchivosServidor().clear();
             while (!ProtocoloComunicacion.END.equals(response)) {
                 String[] cadenas = response.split(ProtocoloComunicacion.SEPARATOR);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy hh:mm");
@@ -49,45 +56,43 @@ public class ClienteSyncThread implements Runnable {
                 response = inputStream.readUTF();
             }
 
+            cliente.getArchivosProcesar().clear();
+            cliente.getArchivosProcesar().putAll(cliente.getArchivosLocales());
+            cliente.getArchivosProcesar().putAll(cliente.getArchivosLocalesAnterior());
+            cliente.getArchivosProcesar().putAll(cliente.getArchivosServidor());
+            cliente.getArchivosProcesar().putAll(cliente.getArchivosServidorAnterior());
 
-            System.out.println("servidor" + cliente.getArchivosServidor());
-            System.out.println("local" + cliente.getArchivosLocales());
-            System.out.println("local_antes" + cliente.getArchivosLocalesAnterior());
+            for (Archivo archivo : cliente.getArchivosProcesar().values()) {
 
-            for (String filename : cliente.getArchivosLocales().keySet()) {
+                if (cliente.getArchivosLocalesAnterior().containsValue(archivo)
+                        && !cliente.getArchivosLocales().containsValue(archivo)) {
+                    archivo.setEstado(EstadoArchivo.CLIENT_DELETED);
+                } else if (cliente.getArchivosServidorAnterior().containsValue(archivo)
+                        && !cliente.getArchivosServidor().containsValue(archivo)) {
+                    archivo.setEstado(EstadoArchivo.SERVER_DELETED);
+                } else if (!cliente.getArchivosLocales().containsValue(archivo)) {
+                    archivo.setEstado(EstadoArchivo.SERVER_NEW);
+                } else if (!cliente.getArchivosServidor().containsValue(archivo)) {
+                    archivo.setEstado(EstadoArchivo.CLIENT_NEW);
+                } else if (cliente.getArchivosLocales().containsValue(archivo)
+                        && cliente.getArchivosServidor().containsValue(archivo)) {
 
-                Archivo fileServer = cliente.getArchivosServidor().get(filename);
-				Archivo fileServerOld = cliente.getArchivosServidorAnterior().get(filename);
-                Archivo fileLocal = cliente.getArchivosLocales().get(filename);
-                Archivo fileLocalOld = cliente.getArchivosLocalesAnterior().get(filename);
+                    Archivo archivoLocal = cliente.getArchivosLocales().get(archivo.getFileName());
+                    Archivo archivoServidor = cliente.getArchivosServidor().get(archivo.getFileName());
 
-
-                if (fileServer != null && fileLocal != null) {
-                	if(fileServer.equals(fileLocal)) {
-						fileLocal.setEstado(EstadoArchivo.SYNCHRONIZED);
-					} else {
-						if (fileLocal.getFechaModificacion().before(fileServer.getFechaModificacion())) {
-							fileLocal.setEstado(EstadoArchivo.SERVER_MODIFIED);
-						} else if (fileLocal.getFechaModificacion().after(fileServer.getFechaModificacion())) {
-							fileLocal.setEstado(EstadoArchivo.CLIENT_MODIFIED);
-						}
-					}
-                    cliente.getArchivosProcesar().put(filename, fileLocal);
+                    if (archivoLocal.getHash().equals(archivoServidor.getHash())) {
+                        archivo.setEstado(EstadoArchivo.SYNCHRONIZED);
+                    } else {
+                        if (archivoLocal.getFechaModificacion().before(archivoServidor.getFechaModificacion())) {
+                            archivo.setEstado(EstadoArchivo.SERVER_MODIFIED);
+                        } else if (archivoLocal.getFechaModificacion().after(archivoServidor.getFechaModificacion())) {
+                            archivo.setEstado(EstadoArchivo.CLIENT_MODIFIED);
+                        }
+                    }
                 }
-
-                if (fileServer == null && fileServerOld == null) {
-                    fileLocal.setEstado(EstadoArchivo.CLIENT_NEW);
-                    cliente.getArchivosProcesar().put(filename, fileLocal);
-                }
-
-                if (fileLocal == null && fileLocalOld != null) {
-                    fileServer.setEstado(EstadoArchivo.SERVER_NEW);
-                    cliente.getArchivosProcesar().put(filename, fileServer);
-                }
-
-
 
             }
+
 
         } catch (IOException e) {
             e.printStackTrace();

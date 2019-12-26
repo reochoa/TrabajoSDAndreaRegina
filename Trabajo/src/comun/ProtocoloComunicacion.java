@@ -5,6 +5,7 @@ public class ProtocoloComunicacion {
     public final static String SEPARATOR = "#";
 
     public final static String UPLOAD = "UPLOAD";
+    public final static String DELETE = "DELETE";
     public final static String DOWNLOAD = "DOWNLOAD";
     public final static String SYNC = "SYNC";
     public final static String END = "END";
@@ -37,6 +38,14 @@ public class ProtocoloComunicacion {
     public static String getComandoUpload(String username, String password, String fileName) {
         StringBuilder stb = new StringBuilder();
         stb.append(UPLOAD).append(SEPARATOR);
+        stb.append(username).append(SEPARATOR).append(password);
+        stb.append(SEPARATOR).append(fileName);
+        return stb.toString();
+    }
+
+    public static String getComandoDelete(String username, String password, String fileName) {
+        StringBuilder stb = new StringBuilder();
+        stb.append(DELETE).append(SEPARATOR);
         stb.append(username).append(SEPARATOR).append(password);
         stb.append(SEPARATOR).append(fileName);
         return stb.toString();

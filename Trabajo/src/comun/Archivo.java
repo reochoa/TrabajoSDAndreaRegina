@@ -127,12 +127,12 @@ public class Archivo {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 		Archivo archivo = (Archivo) o;
-		return Objects.equals(hash, archivo.hash);
+		return Objects.equals(fileName, archivo.fileName);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(hash);
+		return Objects.hash(fileName);
 	}
 
 	@Override

@@ -16,7 +16,7 @@ public class ServidorCloud {
     }
 
     /**
-     * Lee la configuraciÃ³n desde un archivo properties
+     * Lee la configuración desde un archivo properties
      */
     public void leerConfiguracion() {
         pathArchivos = "/home/alejandro/cloudsrv/";

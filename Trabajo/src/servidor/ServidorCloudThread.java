@@ -71,6 +71,19 @@ public class ServidorCloudThread implements Runnable {
 
 	}
 
+	private void eliminarArchivo() {
+		try {
+
+			File file = new File(servidorCloud.getPathArchivos() + username + "/" + filename);
+			file.delete();
+
+			socket.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	/**
 	 * @throws IOException
 	 */
@@ -114,22 +127,20 @@ public class ServidorCloudThread implements Runnable {
 
 			switch (cadenas[0]) {
 			case ProtocoloComunicacion.SYNC:
-				System.out.println("-------------------SINCRONIZACION----------------------");
 				leerArchivosUsuario();
-				System.out.println("----------------FIN SINCRONIZACION----------------------");
 				break;
 			case ProtocoloComunicacion.DOWNLOAD:
-				System.out.println("------------------------DESCARGAR----------------------");
 				filename = cadenas[3];
 				descargarArchivo();
-				System.out.println("--------------------FIN DESCARGAR----------------------");
 				break;
 			case ProtocoloComunicacion.UPLOAD:
-				System.out.println("------------------------SUBIR----------------------");
 				filename = cadenas[3];
 				subirArchivo();
-				System.out.println("-----------------FIN SUBIR-------------------------");
 				break;
+				case ProtocoloComunicacion.DELETE:
+					filename = cadenas[3];
+					eliminarArchivo();
+					break;
 			}
 
 		} catch (IOException ex) {

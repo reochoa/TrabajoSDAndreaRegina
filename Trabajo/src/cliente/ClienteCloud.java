@@ -3,8 +3,11 @@ package cliente;
 import comun.Archivo;
 import comun.EstadoArchivo;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class ClienteCloud {
 
@@ -92,22 +95,17 @@ public class ClienteCloud {
 
             try {
                 while (true) {
-                    Map<String, Archivo> aux = Archivo.leerArchivos(cliente.getPathCarpetaPersonal());
-
-                    cliente.archivosLocalesAnterior.clear();
-                    cliente.archivosLocalesAnterior.putAll(cliente.getArchivosLocales());
-
-                    cliente.getArchivosLocales().clear();
-                    cliente.getArchivosLocales().putAll(aux);
-
                     ClienteSyncThread syncThread = new ClienteSyncThread(cliente);
                     syncThread.run();
 
+                    System.out.println(cliente.getArchivosLocales());
+                    System.out.println(cliente.getArchivosLocalesAnterior());
 
-                    for (String filename : cliente.getArchivosProcesar().keySet()) {
+                    System.out.println(cliente.getArchivosServidor());
+                    System.out.println(cliente.getArchivosServidorAnterior());
 
-                        Archivo archivoProcesar = cliente.getArchivosProcesar().get(filename);
-                        System.out.println(archivoProcesar);
+
+                    for (Archivo archivoProcesar : cliente.getArchivosProcesar().values()) {
 
 
                         //Archivos modificados o nuevos en cliente
@@ -129,6 +127,11 @@ public class ClienteCloud {
                         if(archivoProcesar.getEstado().equals(EstadoArchivo.CLIENT_DELETED)) {
                             ClienteDeleteThread deleteThread = new ClienteDeleteThread(cliente, archivoProcesar);
                             deleteThread.run();
+                        }
+
+                        if(archivoProcesar.getEstado().equals(EstadoArchivo.SERVER_DELETED)) {
+                            File file = new File(cliente.pathCarpetaPersonal + archivoProcesar.getFileName());
+                            file.delete();
                         }
 
                     }
