@@ -127,8 +127,10 @@ public class ServidorCloudThread implements Runnable {
 			username = cadenas[1];
 			password = User.encryptPassword(cadenas[2]);
 			User user = LoginUsuario.getUser(username);
-			System.out.println("Usuario: "+user.getUsername()+", password: "+user.getPassword()+ ", password introducida: "+password);
-			if ( LoginUsuario.existUser(username) && user.getPassword().equals(password)) {
+			System.out.println("Usuario: " + user.getUsername() + ", password: " + user.getPassword()
+					+ ", password introducida: " + password);
+
+			if (LoginUsuario.existUser(username) && user.getPassword().equals(password)) {
 				switch (cadenas[0]) {
 				case ProtocoloComunicacion.SYNC:
 					leerArchivosUsuario();
