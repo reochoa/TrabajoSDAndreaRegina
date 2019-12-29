@@ -16,7 +16,7 @@ public class ServidorCloud {
     }
 
     public void leerConfiguracion() {
-        pathArchivos = "C:/Users/Regina/Desktop/srv";
+        pathArchivos = "C:/Users/Regina/Desktop/srv/";
         serverPort = 6060;
     }
 

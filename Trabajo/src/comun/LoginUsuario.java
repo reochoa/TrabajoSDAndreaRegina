@@ -68,6 +68,28 @@ public class LoginUsuario {
 		return exist;
 
 	}
+	public static User getUser(String userName) {
+		User user  = null;
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			Document doc = db.parse(new File(("Trabajo/src/comun/Users.xml")));
+			Element rootElement = doc.getDocumentElement();
+			NodeList childNodes = rootElement.getChildNodes();
+			for (int i = 0; i < childNodes.getLength(); i++) {
+				if (childNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+					Element el = (Element) childNodes.item(i);
+					if (el.getNodeName().contains("user") && el.getAttribute("username").equalsIgnoreCase(userName)) {
+						user = new User(el.getAttribute("username"), el.getAttribute("password"));
+					}
+				}
+			}
+		} catch (ParserConfigurationException | SAXException | IOException e) {
+			e.printStackTrace();
+		}
+		return user;
+
+	}
 
 	public static List<String> getUsernames() {
 		List<String> usernames = new ArrayList<String>();

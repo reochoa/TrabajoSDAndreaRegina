@@ -8,7 +8,8 @@ public class Main {
 			System.out.println("Ya existe username");
 		}else {
 			System.out.println("No existe username asi, registrando usuario");
-			LoginUsuario.addUser(new User ("reochoa","holaholita"));
+			String hashedPassword = User.encryptPassword("holaholita");
+			LoginUsuario.addUser(new User ("reochoa",hashedPassword));
 		}
 		for (String username : LoginUsuario.getUsernames()) {
 			System.out.println(username);

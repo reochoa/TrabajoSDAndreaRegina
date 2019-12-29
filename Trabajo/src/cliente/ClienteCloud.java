@@ -89,7 +89,7 @@ public class ClienteCloud {
             cliente.serverPort = 6060;
             cliente.username = "reochoa";
             cliente.password = "holaholita";
-            cliente.pathCarpetaPersonal = "C:/Users/Regina/Desktop/srv";
+            cliente.pathCarpetaPersonal = "C:/Users/Regina/Desktop/prueba/";
 
             try {
                 while (true) {
@@ -134,7 +134,7 @@ public class ClienteCloud {
 
                     }
 
-                    Thread.currentThread().sleep(20000);
+                    Thread.currentThread().sleep(5000);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

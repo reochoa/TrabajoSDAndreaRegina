@@ -125,10 +125,10 @@ public class ServidorCloudThread implements Runnable {
 			String cadena = dataInputStream.readUTF();
 			String[] cadenas = cadena.split(ProtocoloComunicacion.SEPARATOR);
 			username = cadenas[1];
-			password = cadenas[2];
-			String hashedPassword="";
-			
-			//if (LoginUsuario.existUser(username) && User.encryptPassword(hashedPassword).equals(password)) {
+			password = User.encryptPassword(cadenas[2]);
+			User user = LoginUsuario.getUser(username);
+			System.out.println("Usuario: "+user.getUsername()+", password: "+user.getPassword()+ ", password introducida: "+password);
+			if ( LoginUsuario.existUser(username) && user.getPassword().equals(password)) {
 				switch (cadenas[0]) {
 				case ProtocoloComunicacion.SYNC:
 					leerArchivosUsuario();
@@ -146,8 +146,7 @@ public class ServidorCloudThread implements Runnable {
 					eliminarArchivo();
 					break;
 				}
-			//}
-
+			}
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
