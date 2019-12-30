@@ -86,7 +86,7 @@ public class ClienteCloud {
 
             cliente.serverHost = "localhost";
             cliente.serverPort = 6060;
-            cliente.username = "reochoa";
+            cliente.username = "anlaram";
             cliente.password = "holaholita";
             cliente.pathCarpetaPersonal = "C:/Users/Regina/Desktop/prueba/";
 

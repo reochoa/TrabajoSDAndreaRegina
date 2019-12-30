@@ -22,8 +22,8 @@ public class User {
 		return this.password;
 	}
 
-	public boolean equals(User user) {
-		return this.username.equals(user.getUsername());
+	public boolean equals(Object user) {
+		return this.username.equals(((User) user).getUsername());
 	}
 
 	public String toString() {

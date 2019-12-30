@@ -21,7 +21,7 @@ public class ClienteDeleteThread implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("[CLIENT] Download file " + cliente.getUsername() + "@" + archivo.getFileName());
+            System.out.println("[CLIENT] Delete file " + cliente.getUsername() + "@" + archivo.getFileName());
 
             Socket socket = new Socket(cliente.getServerHost(), cliente.getServerPort());
             DataInputStream inputStream = new DataInputStream(socket.getInputStream());

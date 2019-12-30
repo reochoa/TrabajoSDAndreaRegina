@@ -6,7 +6,6 @@ import java.util.Map;
 public class ServidorCloud {
 
     private int serverPort;
-    private HashMap<String, String> usuarios;
     private HashMap<String, Map<String, String>> archivos;
     private String pathArchivos;
 
@@ -30,10 +29,6 @@ public class ServidorCloud {
 
     public int getServerPort() {
         return serverPort;
-    }
-
-    public HashMap<String, String> getUsuarios() {
-        return usuarios;
     }
 
     public HashMap<String, Map<String, String>> getArchivos() {
